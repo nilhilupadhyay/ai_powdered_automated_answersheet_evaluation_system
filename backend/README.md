@@ -26,7 +26,9 @@ uvicorn app.main:app --reload
 ## Notes
 
 - Uses SQLAlchemy with SQLite by default (`app.db`).
+- For production, set `DATABASE_URL` to a Postgres URL.
 - Uploaded sheet images are stored in `backend/uploads`.
+- Set `CORS_ALLOW_ORIGINS` to your frontend URL(s), comma-separated.
 - QR decode uses OpenCV `QRCodeDetector`.
 - OCR is provider-based in `app/services/capture_pipeline.py`:
   - `ocr_provider=local` (default fallback)
