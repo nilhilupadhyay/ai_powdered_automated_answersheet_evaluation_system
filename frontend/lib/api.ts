@@ -6,6 +6,21 @@ export type GradeItem = {
   feedback?: string | null;
 };
 
+export type GradeQuestion = {
+  question_no: number;
+  model_answer: string;
+  student_answer: string;
+  max_marks: number;
+};
+
+export type GradeSubmissionResponse = {
+  submission_id: number;
+  grading_mode: string;
+  total_awarded: number;
+  total_max: number;
+  grades: GradeItem[];
+};
+
 export type StudentReport = {
   exam_id: string;
   roll_number: string;
@@ -53,6 +68,26 @@ export type VerifySubmissionResponse = {
   extracted_roll_number: string | null;
   reviewed_by: string;
   reviewed_at: string;
+};
+
+export type GenerateSheetResponse = {
+  filename: string;
+  qr_payload: string;
+  pdf_base64: string;
+};
+
+export type CaptureUploadResponse = {
+  submission_id: number;
+  file_path: string;
+  status: string;
+};
+
+export type ProcessSubmissionResponse = {
+  submission_id: number;
+  qr_payload: string | null;
+  extracted_roll_number: string | null;
+  ocr_confidence: number | null;
+  status: string;
 };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
@@ -107,4 +142,58 @@ export function verifyManualReviewSubmission(
       notes
     }
   );
+}
+
+export function generateSheet(
+  examId: string,
+  sheetSessionId: string,
+  totalQuestions: number,
+  includeRollNumberBox: boolean
+): Promise<GenerateSheetResponse> {
+  return requestJsonWithBody<GenerateSheetResponse>("/api/v1/sheets/generate", {
+    exam_id: examId,
+    sheet_session_id: sheetSessionId,
+    total_questions: totalQuestions,
+    include_roll_number_box: includeRollNumberBox
+  });
+}
+
+export async function uploadSheet(sheetSessionId: string, file: File): Promise<CaptureUploadResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await fetch(`${API_BASE_URL}/api/v1/capture/upload?sheet_session_id=${encodeURIComponent(sheetSessionId)}`, {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || `Upload failed with status ${response.status}`);
+  }
+  return response.json();
+}
+
+export function processSubmission(submissionId: number): Promise<ProcessSubmissionResponse> {
+  return requestJsonWithBody<ProcessSubmissionResponse>(`/api/v1/capture/${submissionId}/process`, {});
+}
+
+export function gradeSubmissionExact(
+  submissionId: number,
+  liberality: string,
+  questions: GradeQuestion[]
+): Promise<GradeSubmissionResponse> {
+  return requestJsonWithBody<GradeSubmissionResponse>(`/api/v1/grading/${submissionId}/exact`, {
+    liberality,
+    questions
+  });
+}
+
+export function gradeSubmissionLlm(
+  submissionId: number,
+  liberality: string,
+  questions: GradeQuestion[]
+): Promise<GradeSubmissionResponse> {
+  return requestJsonWithBody<GradeSubmissionResponse>(`/api/v1/grading/${submissionId}/llm`, {
+    liberality,
+    questions
+  });
 }

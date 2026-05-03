@@ -11,7 +11,7 @@ from app.api.schemas import (
 )
 from app.core.config import settings
 from app.models.entities import Submission, SubmissionReview, SubmissionStatus
-from app.services.capture_pipeline import decode_qr_payload, ensure_uploads_dir, extract_roll_number
+from app.services.capture_pipeline import align_document, decode_qr_payload, ensure_uploads_dir, extract_roll_number
 from app.db.session import get_db
 
 
@@ -52,6 +52,8 @@ def process_submission(submission_id: int, db: Session = Depends(get_db)) -> Pro
         submission.status = SubmissionStatus.failed
         db.commit()
         raise HTTPException(status_code=400, detail="Uploaded image file missing")
+
+    align_document(submission.image_path)
 
     qr_payload = decode_qr_payload(submission.image_path)
     roll_number, confidence = extract_roll_number(submission.image_path)
