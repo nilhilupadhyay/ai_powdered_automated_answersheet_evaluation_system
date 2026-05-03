@@ -1,4 +1,34 @@
+# Environments
 .env
 **/.env
 **/.env.*
 !.env.example
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# Next.js
+.next/
+out/
+build/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+venv/
+.venv/
+env/
+.env_python/
+backend/uploads/
+backend/test.db
+
+# OS Files
+.DS_Store
+Thumbs.db
