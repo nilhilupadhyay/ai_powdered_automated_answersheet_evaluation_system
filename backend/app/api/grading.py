@@ -217,6 +217,7 @@ def grade_submission_exact(
         grade = Grade(
             submission_id=submission_id,
             question_no=item.question_no,
+            question_text=item.question_text,
             max_marks=item.max_marks,
             awarded_marks=grade_result.awarded_marks,
             grading_mode=GradingMode.exact,
@@ -261,6 +262,7 @@ def grade_submission_llm(
 
     for item in payload.questions:
         grade_result = grade_with_llm(
+            question_text=item.question_text,
             student_answer=item.student_answer,
             model_answer=item.model_answer,
             max_marks=item.max_marks,
@@ -269,6 +271,7 @@ def grade_submission_llm(
         grade = Grade(
             submission_id=submission_id,
             question_no=item.question_no,
+            question_text=item.question_text,
             max_marks=item.max_marks,
             awarded_marks=grade_result.awarded_marks,
             grading_mode=GradingMode.llm,

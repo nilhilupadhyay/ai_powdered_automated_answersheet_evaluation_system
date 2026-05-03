@@ -73,6 +73,7 @@ class Grade(Base):
     grading_mode: Mapped[GradingMode] = mapped_column(SqlEnum(GradingMode), nullable=False)
     liberality: Mapped[Liberality] = mapped_column(SqlEnum(Liberality), nullable=False)
     feedback: Mapped[str | None] = mapped_column(Text, nullable=True)
+    question_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     model_answer: Mapped[str] = mapped_column(Text)
     student_answer: Mapped[str] = mapped_column(Text)
     llm_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)

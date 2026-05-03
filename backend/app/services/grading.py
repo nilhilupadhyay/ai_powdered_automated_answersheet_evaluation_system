@@ -31,6 +31,7 @@ def grade_exact_match(*, student_answer: str, model_answer: str, max_marks: floa
 
 def grade_with_llm(
     *,
+    question_text: str | None = None,
     student_answer: str,
     model_answer: str,
     max_marks: float,
@@ -39,6 +40,7 @@ def grade_with_llm(
     if settings.llm_provider == "gemini" and settings.gemini_api_key:
         try:
             return _grade_with_gemini(
+                question_text=question_text,
                 student_answer=student_answer,
                 model_answer=model_answer,
                 max_marks=max_marks,
@@ -49,6 +51,7 @@ def grade_with_llm(
     if settings.llm_provider == "claude" and settings.anthropic_api_key:
         try:
             return _grade_with_claude(
+                question_text=question_text,
                 student_answer=student_answer,
                 model_answer=model_answer,
                 max_marks=max_marks,
@@ -58,6 +61,7 @@ def grade_with_llm(
             # Falls back to heuristic scoring to keep pipeline available.
             pass
     return _heuristic_llm_fallback(
+        question_text=question_text,
         student_answer=student_answer,
         model_answer=model_answer,
         max_marks=max_marks,
@@ -67,6 +71,7 @@ def grade_with_llm(
 
 def _grade_with_gemini(
     *,
+    question_text: str | None = None,
     student_answer: str,
     model_answer: str,
     max_marks: float,
@@ -78,11 +83,13 @@ def _grade_with_gemini(
         Liberality.liberal: "Be liberal. Generously award partial credit when intent is correct.",
     }[liberality]
 
+    question_part = f"Question Text:\n{question_text}\n\n" if question_text else ""
     prompt = (
         "You are an exam evaluator. Return only valid JSON with keys "
         '`awarded_marks` (number) and `feedback` (string). '
         f"Maximum marks are {max_marks}. Never exceed this limit and never go below 0.\n\n"
         f"{rubric_instruction}\n\n"
+        f"{question_part}"
         f"Model Answer:\n{model_answer}\n\n"
         f"Student Answer:\n{student_answer}\n"
     )
@@ -126,6 +133,7 @@ def _grade_with_gemini(
 
 def _grade_with_claude(
     *,
+    question_text: str | None = None,
     student_answer: str,
     model_answer: str,
     max_marks: float,
@@ -142,8 +150,10 @@ def _grade_with_claude(
         "Return only valid JSON with keys: awarded_marks (number), feedback (string).\n"
         f"Maximum marks are {max_marks}. Never exceed this limit and never go below 0."
     )
+    question_part = f"Question Text:\n{question_text}\n\n" if question_text else ""
     user_prompt = (
-        f"{rubric_instruction}\n"
+        f"{rubric_instruction}\n\n"
+        f"{question_part}"
         f"Model Answer:\n{model_answer}\n\n"
         f"Student Answer:\n{student_answer}\n\n"
         "Output format example: {\"awarded_marks\": 3.5, \"feedback\": \"...\"}"
@@ -201,6 +211,7 @@ def _extract_json_object(raw_text: str) -> dict:
 
 def _heuristic_llm_fallback(
     *,
+    question_text: str | None = None,
     student_answer: str,
     model_answer: str,
     max_marks: float,

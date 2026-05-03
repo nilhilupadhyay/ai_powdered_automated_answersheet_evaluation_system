@@ -56,7 +56,7 @@ export default function TeacherDashboard({ initialTab = "analytics" }: { initial
   const [gradSubmissionId, setGradSubmissionId] = useState("");
   const [gradLiberality, setGradLiberality] = useState("moderate");
   const [gradQuestions, setGradQuestions] = useState<GradeQuestion[]>([
-    { question_no: 1, model_answer: "", student_answer: "", max_marks: 10 }
+    { question_no: 1, question_text: "", model_answer: "", student_answer: "", max_marks: 10 }
   ]);
   const [gradLoading, setGradLoading] = useState(false);
   const [gradError, setGradError] = useState("");
@@ -71,7 +71,7 @@ export default function TeacherDashboard({ initialTab = "analytics" }: { initial
   function addGradQuestion() {
     setGradQuestions([
       ...gradQuestions,
-      { question_no: gradQuestions.length + 1, model_answer: "", student_answer: "", max_marks: 10 }
+      { question_no: gradQuestions.length + 1, question_text: "", model_answer: "", student_answer: "", max_marks: 10 }
     ]);
   }
 
@@ -423,6 +423,18 @@ export default function TeacherDashboard({ initialTab = "analytics" }: { initial
                         type="number"
                         value={q.max_marks}
                         onChange={(e) => handleGradQuestionChange(idx, "max_marks", parseFloat(e.target.value))}
+                      />
+                    </label>
+                  </div>
+                  <div className="row" style={{ marginTop: "10px", marginBottom: "10px" }}>
+                    <label style={{ flex: 1 }}>
+                      Question Text:
+                      <textarea
+                        rows={2}
+                        value={q.question_text || ""}
+                        onChange={(e) => handleGradQuestionChange(idx, "question_text", e.target.value)}
+                        style={{ width: "100%" }}
+                        placeholder="Optional: The text of the question"
                       />
                     </label>
                   </div>

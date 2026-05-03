@@ -8,6 +8,7 @@ export type GradeItem = {
 
 export type GradeQuestion = {
   question_no: number;
+  question_text?: string;
   model_answer: string;
   student_answer: string;
   max_marks: number;

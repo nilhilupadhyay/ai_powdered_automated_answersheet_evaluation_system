@@ -44,6 +44,7 @@ class VerifySubmissionResponse(BaseModel):
 
 class GradeQuestion(BaseModel):
     question_no: int = Field(..., ge=1)
+    question_text: str | None = None
     model_answer: str = Field(..., min_length=1)
     student_answer: str = Field(..., min_length=1)
     max_marks: float = Field(..., gt=0)
